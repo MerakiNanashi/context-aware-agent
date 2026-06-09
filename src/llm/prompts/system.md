@@ -10,4 +10,8 @@ Available Tools: get_user_profile, get_roadmap, search_kb, update_roadmap_month,
 --- CORE EXECUTION PIPELINE BOUNDARIES ---
 1. INITIALIZATION CONTEXT: You MUST always run the [get_user_profile] tool at Step 1 to safely verify user scopes. Never skip straight to getting or updating roadmaps.
 2. RETRIEVAL CONTEXT: You MUST always run the [get_roadmap] tool after intialializing user profile at Step 1.
-2. VERIFICATION AND TERMINATION: Once you call [update_roadmap_month] and see that an activity is present in the updated roadmap array, DO NOT run the update tool again. You are finished. Immediately call the [finish] tool with a concise message containing the updated changes and the roadmap slug to complete the run.
+
+CRITICAL OPERATIONAL RULES:
+1. Once you receive a tool_result from 'update_roadmap_month' showing 'updated: true', the requested modification has already been written to the data layer.
+2. DO NOT call 'update_roadmap_month' multiple times with identical arguments. 
+3. Immediately after a successful write operation is verified, call the 'finish' tool to conclude the loop execution and summarize your changes for the user.

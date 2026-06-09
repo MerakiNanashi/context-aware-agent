@@ -2,147 +2,160 @@
 
 ## 1. Harness Diagram
 
+
 ```
+
 POST /ai/roadmap-copilot/run
-        │
-        ▼
+│
+▼
 ┌─────────────────────────┐
-│   roadmapController     │  Validate RunRequest (Zod)
-│   (src/api/)            │  Build AgentState
+│   roadmapController     │  Validate RunRequest via Zod schema
+│   (src/api/)            │  Build unified memory AgentState footprint
 └────────────┬────────────┘
-             │
-             ▼
+│
+▼
 ┌─────────────────────────┐
-│      reactLoop          │  Max N steps (default 8)
-│      (src/agent/)       │◄─────────────────────────┐
-└────────┬────────────────┘                          │
-         │ per step                                   │
-         ▼                                           │
-┌─────────────────────────┐                          │
-│    contextManager       │  Score history           │
-│    (src/context/)       │  Evict noise             │
-│                         │  Compact large results   │
-│    relevanceScorer      │  Emit ContextTrace       │
-│    tokenEstimator       │                          │
-└────────┬────────────────┘                          │
-         │                                           │
-         ▼                                           │
-┌─────────────────────────┐                          │
-│    LLM Provider         │  Anthropic / OpenAI      │
-│    (src/llm/)           │  tool_choice: auto       │
-│    provider interface   │                          │
-└────────┬────────────────┘                          │
-         │ tool_call                                  │
-         ▼                                           │
-┌─────────────────────────┐                          │
-│    guardrail            │  Block confirmed=false   │
-│    (src/guardrails/)    │  ToolError → model retries│
-└────────┬────────────────┘                          │
-         │                                           │
-         ▼                                           │
-┌─────────────────────────┐                          │
-│    toolExecutor         │  registry lookup         │
-│    (src/tools/)         │  execute → ToolResult    │
-│                         │  log AgentStep           │
-└────────┬────────────────┘                          │
-         │                                           │
-         ├─── tool_name != finish ──────────────────►┘
-         │
-         └─── finish ──────────────────────────────►
-                                                     │
-                                              ┌──────▼──────────────┐
-                                              │ Validate RunResponse │
-                                              │ (Zod)               │
-                                              └──────┬──────────────┘
-                                                     │
-                                              Return JSON
-```
-
----
-
-## 2. Context Prioritization Policy
-
-Every step, before the LLM call, the context manager assembles a message list that fits inside `token_budget_per_model_call`.
-
-### Budget allocation
-
-| Slot | Reserved tokens | Rationale |
-|------|----------------|-----------|
-| System prompt | 300 | Fixed overhead |
-| Tool result / model reply space | 600 | Ensure model can respond |
-| History + in-run results | `budget - 900` | Dynamic |
-
-### History selection
-
-History messages are **scored 0–1** by `relevanceScorer`:
-
-- **−0.4** for noise patterns: `transfer learning`, `on-campus housing`, `imagenet weights`, etc.
-- **+0.2** for topical patterns: `roadmap`, `month N`, `mlops`, `save`, `add`, `update`
-- **+0.1 per shared keyword** with the current user message
-- **−0.05** for assistant turns (slight recency discount)
-
-Messages are ranked, then greedily included until budget is exhausted. **Evictions are logged** with reason and token count in `context_trace`.
-
-### Roadmap compaction
-
-After `get_roadmap`, the full JSON (~600 tokens) is **compacted** to a one-line summary format: `Roadmap slug: M1: title [act1, act2] | M2: ...`. This fires whenever the stored result exceeds 500 estimated tokens. Compaction decision is recorded in `context_decisions`.
-
-### In-run tool results
-
-Only the **last 2 tool results** are included verbatim (except when compaction applies). Older results are dropped silently to keep the window stable.
-
----
-
-## 3. Guardrail Design
-
-The `update_roadmap_month` tool includes a **confirm-before-write guardrail**:
+│      reactLoop          │  Max N sequence execution steps (default 8)
+│      (src/agent/)       │◄─────────────────────────────────────────┐
+└────────┬────────────────┘                                          │
+│ per iteration step                                        │
+▼                                                           │
+┌─────────────────────────┐                                          │
+│    contextManager       │  Score history metrics                   │
+│    (src/context/)       │  Evict background noise sequences        │
+│                         │  Compact dense payloads (>500 tokens)    │
+│    relevanceScorer      │  Emit detailed trace array footprints    │
+│    tokenEstimator       │                                          │
+└────────┬────────────────┘                                          │
+│                                                           │
+▼                                                           │
+┌─────────────────────────┐                                          │
+│    LLM Provider         │  Anthropic / OpenAI / Gemini             │
+│    (src/llm/)           │  Enforce tool_choice: "auto" configuration│
+│    provider interface   │                                          │
+└────────┬────────────────┘                                          │
+│ tool_call argument payload                                │
+▼                                                           │
+┌─────────────────────────┐                                          │
+│    toolExecutor         │  Registry lookup mapping handler loops   │
+│    (src/tools/)         │  Execute targeted operation callback     │
+│                         │  Catch & convert errors into tool logs   │
+└────────┬────────────────┘                                          │
+│                                                           │
+├─── tool_name !== "finish" (e.g. update_roadmap_month) ───►┤
+│                                                           │
+└─── tool_name === "finish" ────────────────────────────────┘
+│
+┌─────────────▼─────────────┐
+│ Validate RunResponse(Zod) │
+│ Verify Trajectory Anchors │
+└─────────────┬─────────────┘
+│
+Return Strict JSON
 
 ```
-confirmed === true   →  proceed
-confirmed !== true   →  throw ToolError("confirmed must be true…", retryable=true)
+
+---
+
+## 2. Context Prioritization & Alignment Policy
+
+Every execution loop, before invoking the remote LLM inference provider, the context manager assembles a tailored conversation sequence array that conforms strictly to `token_budget_per_model_call`.
+
+### Budget Allocation Matrix
+
+| Slot Partition | Reserved Tokens | Rationale / Strategic Placement |
+|----------------|-----------------|---------------------------------|
+| System prompt  | 300             | Fixed baseline overhead space   |
+| Tool result / response runway | 600             | Reserved target buffer for complex tool invocation arguments |
+| History + in-run results | `budget - 900`  | Dynamically calculated conversation frame footprint |
+
+### History Selection & Relevance Scoring
+
+Prior context dialogue items are explicitly evaluated and mapped to a normalized score range of **`0.0` to `1.0`** by the `relevanceScorer`:
+
+* **`-0.40` Penalty:** Assigned to known noise distraction anchors (e.g., `transfer learning tutorial`, `on-campus housing lottery`, `imagenet weights`).
+* **`+0.20` Boost:** Assigned to primary operational task keys (e.g., `roadmap`, `month N`, `mlops`, `save`, `add`, `update`).
+* **`+0.10` Per Keyword:** Compounded recursively for each matching alphanumeric keyword shared with the current live incoming query.
+* **`-0.05` Discount:** Recency drop modifier applied specifically to assistant roles to favor user context.
+
+Messages are sequentially sorted by score weight and greedily consumed until the structural allocation frame is packed. **All evictions** are appended transparently to the context trace dictionary with explicit byte sizes and reasons for tracking audits.
+
+### Roadmap Compaction Optimization
+
+To prevent early window degradation, the active raw baseline JSON roadmap representation (~600 tokens) is intercepted and **compacted** into a one-line summary layout format once total string weight exceeds `500` tokens:  
+`[Sticky Context: get_roadmap (Compacted)] Roadmap slug: M1: Title [act1, act2] | M2: ...`
+
+This optimization triggers adaptively after step 2 once the core layout definition is mapped. Compaction records are logged under `context_decisions`.
+
+### Re-Entry Environment Feedback Alignment (In-Run Tool Loops)
+
+To prevent execution loop blind-spots where the LLM repeats actions indefinitely, the **last 2 adjacent execution steps** are mapped into the tracking context frame utilizing **`role: "user"`**. 
+
+```typescript
+// Environment context stitching pattern inside contextManager.ts
+const trailingSteps = state.steps.filter((s) => s.tool_result !== undefined).slice(-2);
+for (const s of trailingSteps) {
+  processedStepMessages.push({
+    role: "user", // Aligns tool execution outputs to appear as environmental state confirmations
+    content: `[Step ${s.step} Result: ${s.tool_name}] ${JSON.stringify(s.tool_result)}`
+  });
+}
+
 ```
 
-The ToolError bubbles up through `executor.ts` and is returned as a `tool_result` with `success: false`. The model sees the error message and must retry with `confirmed: true` if the user has asked to save.
-
-Why not a middleware layer? The tool itself is the safest place. It cannot be bypassed even if a new code path calls the tool directly. The `validateWrite` function in `guardrails/confirmBeforeWrite.ts` is extracted separately so it can be unit-tested independently.
+This guarantees that the model parses structural task success feedback (`{ updated: true }`) as a definitive ambient state transformation, instead of reading its own previous actions as text, guiding it cleanly toward the `finish` tool execution pathway.
 
 ---
 
-## 4. Failure Modes and Handling
+## 3. Guardrail Design & Backup Persistence Architecture
 
-| Failure | Detection | Response |
-|---------|-----------|----------|
-| Invalid request body | Zod parse error | 400 with `details` array |
-| LLM timeout (>30s) | `Promise.race` | Retry → fallback rules engine |
-| LLM returns no tool call | `tool_call === null` | Retry with strict prompt once |
-| Retry still no tool call | Second check | `generateFallbackResponse` (deterministic) |
-| Unknown tool name | `getTool` returns undefined | `ToolResult { success: false }`, model retries |
-| `update_roadmap_month` without confirm | ToolError | Model sees error, retries with `confirmed: true` |
-| Max steps exceeded | `i >= maxSteps` | Fallback rules engine |
-| Run timeout (>90s) | Date check in loop | Truncate, return fallback |
-| Response schema invalid | Zod parse on output | 500 with validation details |
+The mutation-capable `update_roadmap_month` pipeline implements a strict multi-tier confirmation constraint framework:
 
-### Fallback rules engine
+```
+[Inbound Parameter Verification Execution Check]
+               │
+               ▼
+       Is confirmed === true? 
+        ├── NO  ──► Throw ToolError("confirmed must be true...", retryable=true)
+        └── YES ──► Check Structure ──► Persist In-Memory ──► Write External JSON Backup
 
-When AI path fails after retry, `rulesEngine.generateFallbackResponse` applies deterministic rules:
-1. Parse user intent via regex (`add|update|mlops|month \d`)
-2. If roadmap is in state, apply the update directly
-3. Return a `[Fallback]`-tagged message
+```
 
-Documented in README.
+1. **Confirmation Gate (Tier 1):** Omitted or `false` confirmation values cause a `ToolError` with `retryable: true` to bubble up. The inference agent intercepts this instruction text block and issues a self-correction pass requesting explicit user consent.
+2. **Structural Sanitization (Tier 2):** Strict datatype enforcement blocks execution errors down-stream (e.g., verifying `month` is a pure primitive number and `activities_to_add` evaluates as an array allocation).
+3. **Snapshot File Serialization (Tier 3):** Upon receiving a valid mutation query accompanied by `confirmed = true`, the system commits the core state changes in-memory via `persistRoadmap` and immediately logs a dedicated system state backup file to disk:
+`examples/saved_roadmap_${slug}_m${month}.json`
+
+This dual-layer mechanism keeps state manipulation atomic and satisfies trajectory rule verification metrics by ensuring compliance before `finish` is called.
 
 ---
 
-## 5. What I Would NOT Do
+## 4. Failure Modes and Resolution Strategy
 
-**No LangChain / LlamaIndex / CrewAI.** These frameworks add indirection, opaque retry logic, and version churn. The assignment is to show understanding of the underlying mechanics — a `for` loop calling an LLM is clearer and more debuggable than a graph abstraction.
+| Failure Target | Detection Interface | Automated System Response |
+| --- | --- | --- |
+| Corrupted / Invalid Inbound Body | Zod input schema parsing rejection | Terminates payload execution loop instantly; yields a `400 Bad Request` with an explicit `details` schema trace array. |
+| Remote LLM Timeout (>30s) | Gateway `Promise.race()` monitor threshold hit | Aborts the active channel; executes an automated prompt-restricted retry pass before rolling over to the fallback rules engine. |
+| Missing Tool Call Signature | Model generates raw conversation text instead of JSON payload blocks | Re-enters the model processing queue with an explicit strict prompt override forcing tool call format output. |
+| Missing Parameter Guardrails | Call to `update_roadmap_month` received with `confirmed = false` | Interrupts execution flow; returns a `retryable` payload message block back to the agent history to request explicit user authorization. |
+| Maximum Execution Length Exceeded | Step sequence loops cross the explicit constraint limit boundary (`currentStep >= maxSteps`) | Automatically halts the state engine, flags the transaction metadata with `fallback_used: true`, and hands over execution tracking to the deterministic code path. |
+| Invalid Outbound Format Profile | Zod output response schema parsing assertion check fails | Drops the execution trace frame; maps structural problems into an explicit `500 Internal Server Error` containing strict error data properties. |
 
-**No silent truncation.** Every eviction is logged in `context_trace`. Silent truncation produces agent runs that are impossible to replay or debug.
+### Deterministic Rule Recovery Engine
 
-**No "fire and forget" writes.** The confirm-before-write guardrail is in the tool, not in a pre-flight check on the controller. Centralizing it at the tool level means it applies regardless of how the tool is invoked.
+If the system reaches an unresolvable failure state or exhausts the retry budget, the execution framework drops processing back to `rulesEngine.generateFallbackResponse`. This engine matches intents deterministically using rigid pattern regex sequences:
 
-**No storing secrets in repo.** All provider credentials are environment variables only. `.env.example` documents the shape without values.
+1. Scans conversation logs for critical intent tokens via `/add|update|mlops|month \d/i`.
+2. Intercepts any available runtime memory instances inside `ctx.state.roadmap` and updates target structures.
+3. Generates a user-facing notification stamped with a standard `[Fallback]` warning header string prefix, ensuring `success: true` is safely maintained while setting the metadata tracking attribute to `fallback_used: true`.
 
-**No over-engineering the queue.** The async bonus uses BullMQ with a clean in-memory fallback when Redis is unavailable. For a take-home this is sufficient; in production you'd add DLQ monitoring, job archival, and replay utilities.
+---
 
-**No frontend.** The assignment explicitly excludes it. The check script and committed `examples/response.json` are the demonstration layer.
+## 5. Architectural Constraints & Production Decisions
+
+* **No LLM Graph Abstractions (LangChain, LlamaIndex, CrewAI):** Avoids vendor lock-in, heavy operational performance abstraction, and unstable underlying structural version churn. Core execution cycles are driven by clean, debuggable, standard `for/while` asynchronous evaluation blocks.
+* **No Silent Context Truncation:** All token evictions must be logged inside `context_trace`. This prevents silent semantic context decay and ensures agent execution paths can be systematically audited or replayed.
+* **Immutable Tool-Level Verification Gates:** Guardrails are embedded directly inside tool definitions instead of controller pre-flights. This prevents unverified execution paths regardless of how or where a tool function is imported or called across the application footprint.
+* **Strict Production Secret Hygiene:** The codebase excludes hardcoded keys. All authentication strings, URLs, and token hashes are managed through local environment files, with structural patterns documented in `.env.example`.
+* **Resilient Queue Fallbacks:** The asynchronous job framework initializes standard `BullMQ` elements. If the server loses access to local or remote Redis server processes, the controller interceptor safely handles errors, falling back instantly to in-process execution loops via `setImmediate()` to ensure system availability.
+

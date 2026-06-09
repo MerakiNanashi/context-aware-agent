@@ -42,14 +42,12 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
   // =========================================================================
   // 1. ANCHOR CRITICAL TOOL MEMORY (STICKY LOOKUPS)
   // =========================================================================
-  // Locate the baseline snapshot retrieval, regardless of how deep the loop is
   const baselineRoadmapStep = state.steps.find((s) => s.tool_name === "get_roadmap" && s.type === "tool_result");
 
   if (baselineRoadmapStep && baselineRoadmapStep.tool_result) {
     let resultText: string;
     const rawResult = baselineRoadmapStep.tool_result as Record<string, unknown>;
     
-    // Always compact the baseline roadmap once we advance deep into iterations to protect token space
     const shouldCompactBaseline = step > 2 || (JSON.stringify(rawResult).length / 4 > ROADMAP_COMPACT_THRESHOLD);
 
     if (shouldCompactBaseline) {
@@ -62,7 +60,7 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
     const t = estimateTokens(resultText);
     if (usedTokens + t < available) {
       processedStepMessages.push({
-        role: "user", // Assigning user/system roles keeps it pinned high in attention matrices
+        role: "user", // Keeps it pinned cleanly in background attention structures
         content: resultText,
         orderIndex: baselineRoadmapStep.step
       });
@@ -74,7 +72,7 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
   // =========================================================================
   // 2. PROCESS ADJACENT IN-RUN RUNWAY (LAST 2 ACTIONS)
   // =========================================================================
-  // Exclude the baseline step from this trail to avoid duplication anomalies
+  // Core Bug Fix: Map to role: "user" so the LLM interprets it as tool confirmation feedback
   const trailingSteps = state.steps
     .filter((s) => s !== baselineRoadmapStep && s.tool_result !== undefined)
     .slice(-2);
@@ -85,7 +83,7 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
 
     if (usedTokens + t < available) {
       processedStepMessages.push({
-        role: "assistant",
+        role: "user", // CHANGED FROM "assistant" TO "user" TO CORRECT RE-ENTRY BLINDNESS
         content: resultText,
         orderIndex: s.step
       });
@@ -109,7 +107,6 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
     const t = estimateTokens(scored.message.content);
     const historyIndex = state.sessionHistory.indexOf(scored.message);
 
-    // Save 100 tokens overhead cushion room
     if (usedTokens + t < available - 100) {
       selectedHistoryItems.push({
         ...scored,
@@ -123,7 +120,6 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
     }
   }
 
-  // Restore sorted chronological ordering back to selected dialog history entries
   selectedHistoryItems.sort((a, b) => a.originalIndex - b.originalIndex);
 
   // =========================================================================
@@ -131,19 +127,16 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
   // =========================================================================
   const messages: Array<{ role: "user" | "assistant"; content: string }> = [];
 
-  // Component A: Historically preserved conversational exchanges
   messages.push(...selectedHistoryItems.map(item => ({
     role: item.message.role,
     content: item.message.content
   })));
 
-  // Component B: Chronologically processed execution steps (Sticky baseline + short-term trail)
   messages.push(...processedStepMessages.map(m => ({
     role: m.role,
     content: m.content
   })));
 
-  // Component C: Active live query prompt anchor
   const userTokens = estimateTokens(state.userMessage);
   messages.push({ role: "user", content: state.userMessage });
   usedTokens += userTokens;

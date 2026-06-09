@@ -55,6 +55,12 @@ export async function runAgent(state: AgentState): Promise<ReactLoopResult> {
     const { messages, trace } = buildContext(state, state.currentStep);
     state.contextTrace.push(trace);
 
+    // =================================================================
+    // 🔥 DEBUG: PRINT THE CONTEXT SENT TO THE LLM FOR THIS STEP
+    // =================================================================
+    logStepContext(state.currentStep, systemPrompt, messages);
+    // =================================================================
+
     // --- Call LLM ---
     let llmResponse;
     try {
@@ -156,4 +162,31 @@ export async function runAgent(state: AgentState): Promise<ReactLoopResult> {
   // Max steps reached without finish
   state.fallbackUsed = true;
   return generateFallbackResponse(state);
+}
+
+/**
+ * Helper function to print beautifully formatted step contexts
+ */
+function logStepContext(step: number, systemPrompt: string, messages: any[]) {
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`📡 [STEP ${step}] LLM INVOCATION CONTEXT DUMP`);
+  console.log(`${"=".repeat(60)}`);
+
+  console.log(`\n⚙️  --- [SYSTEM PROMPT] ---`);
+  console.log(systemPrompt);
+
+  console.log(`\n💬 --- [CONVERSATION HISTORY / MESSAGES] ---`);
+  messages.forEach((msg: any, idx: number) => {
+    const roleColor = msg.role === 'user' ? '👤' : msg.role === 'assistant' ? '🤖' : '🛠️';
+    console.log(`\n   [Message ${idx + 1}] ${roleColor} Role: ${msg.role.toUpperCase()}`);
+    console.log(`   ${"-".repeat(40)}`);
+    
+    if (typeof msg.content === 'string') {
+      console.log(msg.content.split('\n').map((line: string) => `   ${line}`).join('\n'));
+    } else {
+      console.log(JSON.stringify(msg.content, null, 2).split('\n').map((line: string) => `   ${line}`).join('\n'));
+    }
+  });
+
+  console.log(`\n${"=".repeat(60)}\n`);
 }

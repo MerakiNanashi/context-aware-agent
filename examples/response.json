@@ -1,6 +1,6 @@
 {
   "success": true,
-  "final_message": "[Fallback] Updated month 4 with MLOps topics and saved roadmap priya-ds-2026.",
+  "final_message": "Added MLOps to Month 4 of your data science roadmap, priya-ds-2026. The changes have been saved.",
   "roadmap_updated": true,
   "slug": "priya-ds-2026",
   "steps": [
@@ -68,17 +68,13 @@
           },
           {
             "month": 4,
-            "title": "Model tuning, ensembles & MLOps",
+            "title": "Model tuning & ensembles",
             "activities": [
               "feature_engineering",
               "random_forests",
               "gradient_boosting",
               "capstone_week_1",
-              "mlops",
-              "mlops_fundamentals",
-              "experiment_tracking_mlflow",
-              "model_registry",
-              "ci_training_pipelines"
+              "mlops"
             ]
           },
           {
@@ -114,7 +110,7 @@
         ],
         "_comment": "Candidate tools should return this whole object; context policy must not paste it verbatim every step."
       },
-      "latency_ms": 1
+      "latency_ms": 0
     },
     {
       "step": 3,
@@ -122,10 +118,10 @@
       "tool_name": "update_roadmap_month",
       "tool_args": {
         "confirmed": true,
+        "month": 4,
         "activities_to_add": [
           "mlops"
-        ],
-        "month": 4
+        ]
       }
     },
     {
@@ -136,299 +132,27 @@
         "updated": true,
         "slug": "priya-ds-2026",
         "month": 4,
-        "updated_roadmap": {
-          "id": "rdmp_9f2a",
-          "slug": "priya-ds-2026",
-          "title": "6-month Data Science Path",
-          "months": [
-            {
-              "month": 1,
-              "title": "Python & data basics",
-              "activities": [
-                "python_fundamentals",
-                "pandas_basics",
-                "data_visualization_intro"
-              ]
-            },
-            {
-              "month": 2,
-              "title": "Statistics & visualization",
-              "activities": [
-                "statistics_101",
-                "matplotlib_labs",
-                "seaborn_labs"
-              ]
-            },
-            {
-              "month": 3,
-              "title": "ML foundations",
-              "activities": [
-                "regression",
-                "classification",
-                "model_evaluation"
-              ]
-            },
-            {
-              "month": 4,
-              "title": "Model tuning, ensembles & MLOps",
-              "activities": [
-                "feature_engineering",
-                "random_forests",
-                "gradient_boosting",
-                "capstone_week_1",
-                "mlops",
-                "mlops_fundamentals",
-                "experiment_tracking_mlflow",
-                "model_registry",
-                "ci_training_pipelines"
-              ]
-            },
-            {
-              "month": 5,
-              "title": "Applied ML project",
-              "activities": [
-                "team_project",
-                "model_deployment_intro"
-              ]
-            },
-            {
-              "month": 6,
-              "title": "Portfolio & interview prep",
-              "activities": [
-                "portfolio_site",
-                "mock_interviews"
-              ]
-            }
-          ],
-          "revision_history": [
-            {
-              "at": "2026-02-01",
-              "note": "Initial create"
-            },
-            {
-              "at": "2026-03-10",
-              "note": "Added visualization to month 2"
-            },
-            {
-              "at": "2026-06-09",
-              "note": "Added mlops to month 4"
-            }
-          ],
-          "_comment": "Candidate tools should return this whole object; context policy must not paste it verbatim every step."
-        }
+        "message": "Successfully added activities [mlops] to Month 4. The change has been saved to storage. You must now call 'finish' with a message including 'saved' and slug 'priya-ds-2026' to conclude."
       },
       "latency_ms": 2
     },
     {
       "step": 4,
       "type": "tool_call",
-      "tool_name": "update_roadmap_month",
+      "tool_name": "finish",
       "tool_args": {
-        "confirmed": true,
-        "activities_to_add": [
-          "mlops"
-        ],
-        "month": 4
+        "message": "Added MLOps to Month 4 of your data science roadmap, priya-ds-2026. The changes have been saved."
       }
     },
     {
       "step": 4,
       "type": "tool_result",
-      "tool_name": "update_roadmap_month",
+      "tool_name": "finish",
       "tool_result": {
-        "updated": true,
-        "slug": "priya-ds-2026",
-        "month": 4,
-        "updated_roadmap": {
-          "id": "rdmp_9f2a",
-          "slug": "priya-ds-2026",
-          "title": "6-month Data Science Path",
-          "months": [
-            {
-              "month": 1,
-              "title": "Python & data basics",
-              "activities": [
-                "python_fundamentals",
-                "pandas_basics",
-                "data_visualization_intro"
-              ]
-            },
-            {
-              "month": 2,
-              "title": "Statistics & visualization",
-              "activities": [
-                "statistics_101",
-                "matplotlib_labs",
-                "seaborn_labs"
-              ]
-            },
-            {
-              "month": 3,
-              "title": "ML foundations",
-              "activities": [
-                "regression",
-                "classification",
-                "model_evaluation"
-              ]
-            },
-            {
-              "month": 4,
-              "title": "Model tuning, ensembles & MLOps",
-              "activities": [
-                "feature_engineering",
-                "random_forests",
-                "gradient_boosting",
-                "capstone_week_1",
-                "mlops",
-                "mlops_fundamentals",
-                "experiment_tracking_mlflow",
-                "model_registry",
-                "ci_training_pipelines"
-              ]
-            },
-            {
-              "month": 5,
-              "title": "Applied ML project",
-              "activities": [
-                "team_project",
-                "model_deployment_intro"
-              ]
-            },
-            {
-              "month": 6,
-              "title": "Portfolio & interview prep",
-              "activities": [
-                "portfolio_site",
-                "mock_interviews"
-              ]
-            }
-          ],
-          "revision_history": [
-            {
-              "at": "2026-02-01",
-              "note": "Initial create"
-            },
-            {
-              "at": "2026-03-10",
-              "note": "Added visualization to month 2"
-            },
-            {
-              "at": "2026-06-09",
-              "note": "Added mlops to month 4"
-            }
-          ],
-          "_comment": "Candidate tools should return this whole object; context policy must not paste it verbatim every step."
-        }
+        "done": true,
+        "message": "Added MLOps to Month 4 of your data science roadmap, priya-ds-2026. The changes have been saved."
       },
       "latency_ms": 0
-    },
-    {
-      "step": 5,
-      "type": "tool_call",
-      "tool_name": "update_roadmap_month",
-      "tool_args": {
-        "activities_to_add": [
-          "mlops"
-        ],
-        "confirmed": true,
-        "month": 4
-      }
-    },
-    {
-      "step": 5,
-      "type": "tool_result",
-      "tool_name": "update_roadmap_month",
-      "tool_result": {
-        "updated": true,
-        "slug": "priya-ds-2026",
-        "month": 4,
-        "updated_roadmap": {
-          "id": "rdmp_9f2a",
-          "slug": "priya-ds-2026",
-          "title": "6-month Data Science Path",
-          "months": [
-            {
-              "month": 1,
-              "title": "Python & data basics",
-              "activities": [
-                "python_fundamentals",
-                "pandas_basics",
-                "data_visualization_intro"
-              ]
-            },
-            {
-              "month": 2,
-              "title": "Statistics & visualization",
-              "activities": [
-                "statistics_101",
-                "matplotlib_labs",
-                "seaborn_labs"
-              ]
-            },
-            {
-              "month": 3,
-              "title": "ML foundations",
-              "activities": [
-                "regression",
-                "classification",
-                "model_evaluation"
-              ]
-            },
-            {
-              "month": 4,
-              "title": "Model tuning, ensembles & MLOps",
-              "activities": [
-                "feature_engineering",
-                "random_forests",
-                "gradient_boosting",
-                "capstone_week_1",
-                "mlops",
-                "mlops_fundamentals",
-                "experiment_tracking_mlflow",
-                "model_registry",
-                "ci_training_pipelines"
-              ]
-            },
-            {
-              "month": 5,
-              "title": "Applied ML project",
-              "activities": [
-                "team_project",
-                "model_deployment_intro"
-              ]
-            },
-            {
-              "month": 6,
-              "title": "Portfolio & interview prep",
-              "activities": [
-                "portfolio_site",
-                "mock_interviews"
-              ]
-            }
-          ],
-          "revision_history": [
-            {
-              "at": "2026-02-01",
-              "note": "Initial create"
-            },
-            {
-              "at": "2026-03-10",
-              "note": "Added visualization to month 2"
-            },
-            {
-              "at": "2026-06-09",
-              "note": "Added mlops to month 4"
-            }
-          ],
-          "_comment": "Candidate tools should return this whole object; context policy must not paste it verbatim every step."
-        }
-      },
-      "latency_ms": 0
-    },
-    {
-      "step": 6,
-      "type": "error",
-      "error": "LLM call failed: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\\nPlease retry in 28.51671599s.\",\"status\":\"RESOURCE_EXHAUSTED\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-2.5-flash-lite\"},\"quotaValue\":\"20\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"28s\"}]}}"
     }
   ],
   "context_trace": [
@@ -487,7 +211,7 @@
     },
     {
       "step": 4,
-      "tokens_used": 925,
+      "tokens_used": 705,
       "token_budget": 3500,
       "context_included": [
         "sticky_tool_result:get_roadmap:step2",
@@ -505,82 +229,35 @@
       "context_decisions": [
         "compacted sticky baseline get_roadmap data at step 2"
       ]
-    },
-    {
-      "step": 5,
-      "tokens_used": 1169,
-      "token_budget": 3500,
-      "context_included": [
-        "sticky_tool_result:get_roadmap:step2",
-        "tool_result:update_roadmap_month:step3",
-        "tool_result:update_roadmap_month:step4",
-        "history:user:score0.90:relevant:roadmap",
-        "history:user:score0.80:relevant:month \\d",
-        "history:assistant:score0.75:relevant:month \\d",
-        "history:assistant:score0.55:neutral",
-        "history:assistant:score0.25:relevant:save",
-        "history:user:score0.10:noise:transfer learning",
-        "user_message:current"
-      ],
-      "context_evicted": [],
-      "context_decisions": [
-        "compacted sticky baseline get_roadmap data at step 2"
-      ]
-    },
-    {
-      "step": 6,
-      "tokens_used": 1169,
-      "token_budget": 3500,
-      "context_included": [
-        "sticky_tool_result:get_roadmap:step2",
-        "tool_result:update_roadmap_month:step4",
-        "tool_result:update_roadmap_month:step5",
-        "history:user:score0.90:relevant:roadmap",
-        "history:user:score0.80:relevant:month \\d",
-        "history:assistant:score0.75:relevant:month \\d",
-        "history:assistant:score0.55:neutral",
-        "history:assistant:score0.25:relevant:save",
-        "history:user:score0.10:noise:transfer learning",
-        "user_message:current"
-      ],
-      "context_evicted": [],
-      "context_decisions": [
-        "compacted sticky baseline get_roadmap data at step 2"
-      ]
     }
   ],
   "provider": "gemini",
   "model": "gemini-2.5-flash-lite",
   "metadata": {
-    "latency_ms": 5623,
-    "fallback_used": true,
+    "latency_ms": 11592,
+    "fallback_used": false,
     "retry_count": 0,
     "prompt_version": "v1.0.0",
     "token_usage": [
       {
         "step": 1,
-        "input_tokens": 742,
+        "input_tokens": 814,
         "output_tokens": 12
       },
       {
         "step": 2,
-        "input_tokens": 818,
+        "input_tokens": 890,
         "output_tokens": 10
       },
       {
         "step": 3,
-        "input_tokens": 965,
+        "input_tokens": 1037,
         "output_tokens": 31
       },
       {
         "step": 4,
-        "input_tokens": 1283,
-        "output_tokens": 31
-      },
-      {
-        "step": 5,
-        "input_tokens": 1522,
-        "output_tokens": 31
+        "input_tokens": 1127,
+        "output_tokens": 41
       }
     ]
   }

@@ -40,13 +40,6 @@ npx ts-node scripts/check.ts
 
 Validates `examples/response.json` against the schema and `trajectory_rules.json`.
 
-
-## Hardest tradeoff
-
-**Context compaction vs. fidelity.** The roadmap JSON is ~600 tokens — expensive if included verbatim every step. Compacting it to a one-line summary saves budget but loses field-level detail. The decision was to compact after step 2 (once the model has seen the full roadmap) and rely on the in-state `roadmap` object for subsequent writes. This keeps the context lean while preserving correctness.
-
-The second tradeoff was **when to apply the guardrail**. Putting it in the controller as a pre-flight check is simpler, but embedding it in the tool itself means it applies regardless of call path — important for testability and correctness.
-
 ---
 
 ## API
@@ -155,12 +148,18 @@ If the LLM fails (timeout, no tool call after retry, max steps exceeded):
 
 ## Results:
 
-CLI results for `scripts/checks.ts`
-![alt text](image.png)
+### CLI results for `scripts/checks.ts`
+![alt text](./imgs/image.png)
 
+### CLI results for `response.json`
+![alt text](./imgs/image-1.png)
+
+### CLI results for `saved_roadmap_${roadmap.slug}_m${month}.json`
+![alt text](./imgs/image-2.png)
 
 ---
 
 ## License:
 
+MIT © Roadmap Copilot Platform Contributors
 
