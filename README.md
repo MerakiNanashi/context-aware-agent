@@ -161,5 +161,7 @@ If the LLM fails (timeout, no tool call after retry, max steps exceeded):
 
 ## License:
 
-MIT © Roadmap Copilot Platform Contributors
+MIT License
+
+Copyright (c) 2026 Mahika Rastogi
 
