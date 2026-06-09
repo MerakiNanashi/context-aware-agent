@@ -11,7 +11,7 @@ export interface UpdateRoadmapArgs {
 export async function updateRoadmapMonth(
   args: Record<string, unknown>,
   ctx: ToolContext
-): Promise<{ updated: boolean; slug: string; month: number }> {
+): Promise<{ updated: boolean; slug: string; month: number ; updated_roadmap: any}> {
   const { month, activities_to_add, title, confirmed } = args as unknown as UpdateRoadmapArgs;
 
   // Guardrail: must be confirmed
@@ -55,17 +55,24 @@ export async function updateRoadmapMonth(
     monthEntry.title = title;
   }
 
-  // Record revision
-  roadmap.revision_history.push({
-    at: new Date().toISOString().slice(0, 10),
-    note: `Added ${added.join(", ")} to month ${month}`,
-  });
+  // Only push to history if things were actually added or title modified
+  if (added.length > 0 || title) {
+    roadmap.revision_history.push({
+      at: new Date().toISOString().slice(0, 10),
+      note: `Added ${added.join(", ")} to month ${month}`,
+    });
+  }
 
   // Persist in-memory
   persistRoadmap(roadmap);
   ctx.state.roadmapUpdated = true;
 
-  return { updated: true, slug: roadmap.slug, month };
+  return { 
+    updated: true, 
+    slug: roadmap.slug, 
+    month, 
+    updated_roadmap: roadmap 
+  };
 }
 
 export const updateRoadmapMonthDefinition = {

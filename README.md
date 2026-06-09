@@ -35,15 +35,11 @@ npm test
 ## Check committed response
 
 ```bash
-npm run check
+npx ts-node scripts/check.ts
 ```
 
 Validates `examples/response.json` against the schema and `trajectory_rules.json`.
 
-## Time spent
-
-Core: ~7 hours  
-Bonus (async queue): ~1.5 hours
 
 ## Hardest tradeoff
 
@@ -156,8 +152,15 @@ If the LLM fails (timeout, no tool call after retry, max steps exceeded):
 
 ---
 
-## Prompt versioning
 
-Prompts live in `src/llm/prompts/`. The version string `PROMPT_VERSION = "v1.0.0"` is exported from `promptBuilder.ts` and included in every response's `metadata.prompt_version`.
+## Results:
 
-To version a prompt: bump the constant and commit. Future: replace with a file-based version manifest.
+CLI results for `scripts/checks.ts`
+![alt text](image.png)
+
+
+---
+
+## License:
+
+
