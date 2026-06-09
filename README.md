@@ -151,10 +151,10 @@ If the LLM fails (timeout, no tool call after retry, max steps exceeded):
 ### CLI results for `scripts/checks.ts`
 ![alt text](./imgs/image.png)
 
-### CLI results for `response.json`
+### Results for `response.json`
 ![alt text](./imgs/image-1.png)
 
-### CLI results for `saved_roadmap_${roadmap.slug}_m${month}.json`
+### Results for `saved_roadmap_${roadmap.slug}_m${month}.json`
 ![alt text](./imgs/image-2.png)
 
 ---
