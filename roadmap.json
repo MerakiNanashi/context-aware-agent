@@ -1,0 +1,42 @@
+{
+  "id": "rdmp_9f2a",
+  "slug": "priya-ds-2026",
+  "title": "6-month Data Science Path",
+  "months": [
+    {
+      "month": 1,
+      "title": "Python & data basics",
+      "activities": ["python_fundamentals", "pandas_basics", "data_visualization_intro"]
+    },
+    {
+      "month": 2,
+      "title": "Statistics & visualization",
+      "activities": ["statistics_101", "matplotlib_labs", "seaborn_labs"]
+    },
+    {
+      "month": 3,
+      "title": "ML foundations",
+      "activities": ["regression", "classification", "model_evaluation"]
+    },
+    {
+      "month": 4,
+      "title": "Model tuning & ensembles",
+      "activities": ["feature_engineering", "random_forests", "gradient_boosting", "capstone_week_1"]
+    },
+    {
+      "month": 5,
+      "title": "Applied ML project",
+      "activities": ["team_project", "model_deployment_intro"]
+    },
+    {
+      "month": 6,
+      "title": "Portfolio & interview prep",
+      "activities": ["portfolio_site", "mock_interviews"]
+    }
+  ],
+  "revision_history": [
+    { "at": "2026-02-01", "note": "Initial create" },
+    { "at": "2026-03-10", "note": "Added visualization to month 2" }
+  ],
+  "_comment": "Candidate tools should return this whole object; context policy must not paste it verbatim every step."
+}

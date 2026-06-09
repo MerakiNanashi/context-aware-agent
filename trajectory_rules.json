@@ -1,0 +1,10 @@
+{
+  "per_step_budget_max": 3500,
+  "tools_must_be_called_before_finish": ["get_user_profile", "get_roadmap", "update_roadmap_month"],
+  "guardrail_must_block_unconfirmed_save": true,
+  "save_must_succeed_with_confirmed_true": true,
+  "context_must_compact_at_least_once": true,
+  "context_compact_reason": "After get_roadmap, full roadmap JSON should not remain at full size in every later model call",
+  "forbidden_dominant_patterns_in_final_context": ["transfer learning tutorial", "on-campus housing lottery"],
+  "final_answer_must_contain": ["MLOps", "month 4", "saved", "priya-ds-2026"]
+}

@@ -1,0 +1,28 @@
+{
+  "chunks": [
+    {
+      "id": "mlops_month4",
+      "keywords": ["mlops", "month 4", "deployment", "mlflow"],
+      "estimated_tokens": 120,
+      "text": "MLOps for month 4: experiment tracking with MLflow, model registry basics, CI for training pipelines, deploy to staging. Prerequisite: ML foundations complete."
+    },
+    {
+      "id": "internships",
+      "keywords": ["internship", "summer"],
+      "estimated_tokens": 90,
+      "text": "Summer internships: apply Jan–Mar after core ML skills (typically post month 3)."
+    },
+    {
+      "id": "transfer_learning",
+      "keywords": ["transfer learning"],
+      "estimated_tokens": 200,
+      "text": "Transfer learning uses pretrained weights and fine-tuning… (long explanatory content — low value for roadmap edit)"
+    },
+    {
+      "id": "housing",
+      "keywords": ["housing", "campus"],
+      "estimated_tokens": 80,
+      "text": "On-campus housing lottery opens in April."
+    }
+  ]
+}
