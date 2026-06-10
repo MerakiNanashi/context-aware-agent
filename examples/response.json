@@ -1,6 +1,6 @@
 {
   "success": true,
-  "final_message": "Added MLOps to Month 4 of your data science roadmap, priya-ds-2026. The changes have been saved.",
+  "final_message": "Added MLOps to month 4 of your data science roadmap. Saved slug: priya-ds-2026",
   "roadmap_updated": true,
   "slug": "priya-ds-2026",
   "steps": [
@@ -22,7 +22,7 @@
         "roadmap_slug": "priya-ds-2026",
         "graduation_year": 2027
       },
-      "latency_ms": 0
+      "latency_ms": 1
     },
     {
       "step": 2,
@@ -104,21 +104,21 @@
             "note": "Added visualization to month 2"
           },
           {
-            "at": "2026-06-09",
+            "at": "2026-06-10",
             "note": "Added mlops to month 4"
           }
         ],
         "_comment": "Candidate tools should return this whole object; context policy must not paste it verbatim every step."
       },
-      "latency_ms": 0
+      "latency_ms": 1
     },
     {
       "step": 3,
       "type": "tool_call",
       "tool_name": "update_roadmap_month",
       "tool_args": {
-        "confirmed": true,
         "month": 4,
+        "confirmed": true,
         "activities_to_add": [
           "mlops"
         ]
@@ -141,7 +141,7 @@
       "type": "tool_call",
       "tool_name": "finish",
       "tool_args": {
-        "message": "Added MLOps to Month 4 of your data science roadmap, priya-ds-2026. The changes have been saved."
+        "message": "Added MLOps to month 4 of your data science roadmap. Saved slug: priya-ds-2026"
       }
     },
     {
@@ -150,7 +150,7 @@
       "tool_name": "finish",
       "tool_result": {
         "done": true,
-        "message": "Added MLOps to Month 4 of your data science roadmap, priya-ds-2026. The changes have been saved."
+        "message": "Added MLOps to month 4 of your data science roadmap. Saved slug: priya-ds-2026"
       },
       "latency_ms": 0
     }
@@ -191,7 +191,7 @@
     },
     {
       "step": 3,
-      "tokens_used": 632,
+      "tokens_used": 605,
       "token_budget": 3500,
       "context_included": [
         "sticky_tool_result:get_roadmap:step2",
@@ -206,12 +206,12 @@
       ],
       "context_evicted": [],
       "context_decisions": [
-        "compacted sticky baseline get_roadmap data at step 2"
+        "compacted relevant baseline get_roadmap data at step 2"
       ]
     },
     {
       "step": 4,
-      "tokens_used": 705,
+      "tokens_used": 679,
       "token_budget": 3500,
       "context_included": [
         "sticky_tool_result:get_roadmap:step2",
@@ -227,14 +227,14 @@
       ],
       "context_evicted": [],
       "context_decisions": [
-        "compacted sticky baseline get_roadmap data at step 2"
+        "compacted relevant baseline get_roadmap data at step 2"
       ]
     }
   ],
   "provider": "gemini",
   "model": "gemini-2.5-flash-lite",
   "metadata": {
-    "latency_ms": 11592,
+    "latency_ms": 4873,
     "fallback_used": false,
     "retry_count": 0,
     "prompt_version": "v1.0.0",
@@ -251,13 +251,13 @@
       },
       {
         "step": 3,
-        "input_tokens": 1037,
+        "input_tokens": 998,
         "output_tokens": 31
       },
       {
         "step": 4,
-        "input_tokens": 1127,
-        "output_tokens": 41
+        "input_tokens": 1126,
+        "output_tokens": 38
       }
     ]
   }
