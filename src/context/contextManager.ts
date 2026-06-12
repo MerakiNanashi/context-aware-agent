@@ -151,6 +151,7 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
     let resultText: string;
     const rawResult = baselineRoadmapStep.tool_result as Record<string, unknown>;
 
+    // allowing LLM to use "updated" as an indication of state
     if (state.roadmapUpdated) {
       processedStepMessages.push({
         role: "user",
@@ -160,6 +161,7 @@ export function buildContext(state: AgentState, step: number): BuiltContext {
     });
     }
     
+    // if step > 2 ie. get road map and get user profile done -> compact, or est tokens more than threshold
     const shouldCompactBaseline = step > 2 || (JSON.stringify(rawResult).length / 4 > ROADMAP_COMPACT_THRESHOLD);
 
     const roadmap = rawResult as unknown as Roadmap;

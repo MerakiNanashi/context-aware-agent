@@ -14,7 +14,8 @@ export class GeminiProvider implements LLMProvider {
     messages: LLMMessage[],
     tools: ToolDefinition[],
     model: string = 'gemini-2.5-flash',
-    maxTokens = 1024
+    maxTokens = 1024,
+    debug: boolean = true
   ): Promise<LLMResponse> {
     
     // FIX 2: Correct structure for the tools configuration array
@@ -61,6 +62,12 @@ export class GeminiProvider implements LLMProvider {
       contents: geminiContents,
       config: config,
     });
+    
+    if (debug) {
+      console.log("Config:", JSON.stringify(config, null, 2));
+      console.log("Content:", JSON.stringify(geminiContents, null, 2));
+      console.log("Tools:", JSON.stringify(geminiTools, null, 2));
+    }
 
     let content: string | null = null;
     let toolCall = null;
