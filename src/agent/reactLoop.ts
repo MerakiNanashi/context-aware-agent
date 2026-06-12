@@ -7,6 +7,7 @@ import { buildSystemPrompt } from "../llm/promptBuilder";
 import { retryWithStrictPrompt } from "../fallback/retry";
 import { generateFallbackResponse } from "../fallback/rulesEngine";
 import { AgentStep } from "../schemas/response";
+import { validateWrite } from "../guardrails/confirmBeforeWrite"
 
 const LLM_TIMEOUT_MS = 30_000;
 const RUN_TIMEOUT_MS = 90_000;
@@ -123,6 +124,28 @@ export async function runAgent(state: AgentState): Promise<ReactLoopResult> {
       tool_args: toolArgs,
     };
     state.steps.push(toolCallStep);
+
+    // call guardrail
+
+    try{
+      const mutatingTools = ["update_roadmap",];
+
+      if (mutatingTools.includes(toolName)) {
+        validateWrite(toolArgs, toolName);
+      }
+
+    } catch (guardrailError) {
+      state.steps.push({
+        step: state.currentStep,
+        type: "error",
+        tool_name: toolName,
+        error: (guardrailError as Error).message,
+        latency_ms: 0,
+      });
+
+    continue;
+    }
+
 
     // --- Execute tool ---
     const ctx: ToolContext = {
